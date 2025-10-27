@@ -937,7 +937,7 @@ async function getInscriptionOwner(inscriptionId) {
 
   async function getBlockData(blockHeight) {
     try {
-      const response = await fetch(`https://blockchain.info/block-height/${blockHeight}?format=json`);
+      const response = await fetch(`/api/ordinals?path=/inscription/${inscriptionId}`);
       const data = await response.json();
       if (data.blocks && data.blocks.length > 0) {
         const block = data.blocks[0];
