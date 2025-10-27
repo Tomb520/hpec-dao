@@ -942,17 +942,24 @@ export default function BitmapOCIApp() {
   }
 async function getInscriptionOwner(inscriptionId) {
   try {
+    console.log('🔍 Fetching owner for:', inscriptionId);
     const response = await fetch(`/api/ordinals?path=/inscription/${inscriptionId}`);
     const text = await response.text();
-    
+    console.log('📄 Response length:', text.length);
+    console.log('📄 First 500 chars:', text.substring(0, 500));
+
     // Parse the HTML to extract address
     const addressMatch = text.match(/href=\/address\/([a-z0-9]+)>/);
+    console.log('🎯 Address match:', addressMatch);
+    
     if (addressMatch) {
+      console.log('✅ Owner found:', addressMatch[1]);
       return addressMatch[1];
     }
+    console.log('❌ No address match found');
     return 'Unknown';
   } catch (e) {
-    console.error('Error fetching owner:', e);
+    console.error('❌ Error fetching owner:', e);
     return 'Unknown';
   }
 }
