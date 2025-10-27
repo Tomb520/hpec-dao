@@ -1152,25 +1152,25 @@ const fetchParcels = async (bitmapInscriptionId, bitmapNumber) => {
   };
 
   const handleLookup = async (bitmapNum = null) => {
-    setError('');
-    setResult(null);
-    setBitmapImage(null);
-    setParcels([]);
-    setSelectedParcel(null);
-    setParcelChildren([]);
-    
-    const num = bitmapNum || parseInt(bitmapNumber);
-    if (isNaN(num)) {
-      setError('Please enter a valid number');
-      return;
-    }
-    if (num < 0 || num > 839999) {
-      setError('Bitmap number must be between 0 and 839,999');
-      return;
-    }
-    
-    // Set home page mode if looking up 267651
-    setIsHomePage(num === 267651);
+  setError('');
+  setResult(null);
+  setBitmapImage(null);
+  setParcels([]);
+  setSelectedParcel(null);
+  setParcelChildren([]);
+  
+  const num = bitmapNum !== null ? bitmapNum : parseInt(bitmapNumber.trim(), 10);
+  
+  if (isNaN(num) || num === null || num === undefined) {
+    setError('Please enter a valid number');
+    return;
+  }
+  if (num < 0 || num > 839999) {
+    setError('Bitmap number must be between 0 and 839,999');
+    return;
+  }
+  // Set home page mode if looking up 267651
+  setIsHomePage(num === 267651);
     
     setLoading(true);
     try {
