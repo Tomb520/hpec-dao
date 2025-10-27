@@ -924,7 +924,7 @@ async function getInscriptionOwner(inscriptionId) {
     const text = await response.text();
     
     // Parse the HTML to extract address
-    const addressMatch = text.match(/\/address\/([a-zA-Z0-9]+)/);
+    const addressMatch = text.match(/href=\/address\/([a-z0-9]+)>/);
     if (addressMatch) {
       return addressMatch[1];
     }
