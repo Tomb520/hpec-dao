@@ -394,21 +394,24 @@ function ClickableBitmapGrid({ imageDataUrl, txList, parcels, otherChildren, onS
     img.src = imageDataUrl;
   }, [imageDataUrl, txList, parcels, otherChildren]);
 
-  const handleMouseMove = (e) => {
+  const getSquareAtPosition = (clientX, clientY) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
+    if (!canvas) return null;
+    
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
-
-    const square = squaresRef.current.find(sq =>
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
+    
+    return squaresRef.current.find(sq =>
       x >= sq.x && x <= sq.x + sq.width &&
       y >= sq.y && y <= sq.y + sq.height
     );
+  };
 
+  const handleMouseMove = (e) => {
+    const square = getSquareAtPosition(e.clientX, e.clientY);
     setHoveredSquare(square || null);
   };
 
@@ -418,6 +421,22 @@ function ClickableBitmapGrid({ imageDataUrl, txList, parcels, otherChildren, onS
     }
   };
 
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      const square = getSquareAtPosition(touch.clientX, touch.clientY);
+      setHoveredSquare(square || null);
+      
+      if (square && (square.hasParcel || square.hasChild)) {
+        onSquareClick(square.index);
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setHoveredSquare(null);
+  };
+
   return (
     <div className="relative">
       <canvas
@@ -425,10 +444,13 @@ function ClickableBitmapGrid({ imageDataUrl, txList, parcels, otherChildren, onS
         onClick={handleClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setHoveredSquare(null)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         className="w-full h-auto cursor-pointer"
         style={{
           opacity: hoveredSquare ? 0.9 : 1,
-          transition: 'opacity 0.2s'
+          transition: 'opacity 0.2s',
+          touchAction: 'none'
         }}
       />
       {hoveredSquare && (hoveredSquare.hasParcel || hoveredSquare.hasChild) && (
@@ -436,7 +458,7 @@ function ClickableBitmapGrid({ imageDataUrl, txList, parcels, otherChildren, onS
           <p className="text-sm font-semibold">
             {hoveredSquare.hasParcel ? `🟢 Parcel ${hoveredSquare.index + 1}` : `🟣 Child ${hoveredSquare.index - parcels.length + 1}`}
           </p>
-          <p className="text-xs text-orange-300">Click to explore</p>
+          <p className="text-xs text-orange-300">Tap to explore</p>
         </div>
       )}
     </div>
