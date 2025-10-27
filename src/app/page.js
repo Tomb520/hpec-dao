@@ -982,27 +982,36 @@ async function getInscriptionOwner(inscriptionId) {
     return { transactions: 0, blockHash: null, timestamp: null, size: 0, txList: [] };
   }
 
-  const fetchChildDetails = async (child) => {
-    if (child.ownerAddress) {
-      // Already has details
-      setSelectedChild(child);
-      return;
-    }
+const fetchChildDetails = async (child) => {
+  try {
+    console.log('🎯 fetchChildDetails called for:', child.id);
+    console.log('📋 Child has ownerAddress?', child.ownerAddress);
     
-    try {
+    if (child.ownerAddress) {
+      console.log('✅ Owner already loaded:', child.ownerAddress);
+      setSelectedChild(child);
+    } else {
+      console.log('🔍 Fetching owner...');
       const ownerAddress = await getInscriptionOwner(child.id);
-      const updatedChild = { ...child, ownerAddress };
-      setSelectedChild(updatedChild);
+      console.log('✅ Owner fetched:', ownerAddress);
       
+      const updatedChild = { ...child, ownerAddress };
+      console.log('📦 Updated child object:', updatedChild);
+      
+      setSelectedChild(updatedChild);
+      console.log('✅ State updated with selectedChild');
+
       // Update the child in otherChildren array too
-      setOtherChildren(prev => 
+      setOtherChildren(prev =>
         prev.map(c => c.id === child.id ? updatedChild : c)
       );
-    } catch (err) {
-      console.error('Error fetching child details:', err);
-      setSelectedChild({ ...child, ownerAddress: 'Unknown' });
+      console.log('✅ Updated otherChildren array');
     }
-  };
+  } catch (err) {
+    console.error('❌ Error fetching child details:', err);
+    setSelectedChild({ ...child, ownerAddress: 'Unknown' });
+  }
+};
 
   const fetchParcelDetails = async (parcel) => {
     // Set the parcel as selected
