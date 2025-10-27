@@ -11,6 +11,7 @@ const nextConfig = {
         hostname: 'api.hiro.so',
       },
     ],
+    unoptimized: true,
   },
   async headers() {
     return [
@@ -19,7 +20,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; img-src 'self' https://ordinals.com https://api.hiro.so data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://ordinals.com https://api.hiro.so https://hpec-dao-backend-0d9de4c43824.herokuapp.com;",
+            value: "img-src * data: blob: 'unsafe-inline';",
           },
         ],
       },
