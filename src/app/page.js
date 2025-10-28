@@ -1438,7 +1438,10 @@ const fetchParcels = async (bitmapInscriptionId, bitmapNumber) => {
                 className="flex-1 px-4 py-3 bg-gray-800 border-2 border-orange-600 rounded-lg focus:border-orange-400 focus:outline-none text-white text-lg placeholder-orange-300"
               />
               <button
-                onClick={handleLookup}
+                onClick={() => {
+                document.activeElement?.blur();
+                setTimeout(() => handleLookup(), 100);
+            }}
                 disabled={loading}
                 className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >
