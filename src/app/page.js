@@ -1428,7 +1428,7 @@ const fetchParcels = async (bitmapInscriptionId, bitmapNumber) => {
                 </button>
               )}
               <input
-                type="number"
+                type="text"
                 min="0"
                 max="839999"
                 value={bitmapNumber}
