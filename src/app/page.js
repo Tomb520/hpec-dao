@@ -1424,7 +1424,7 @@ export default function BitmapOCIApp() {
                       }}
                       className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors flex items-center gap-2"
                     >
-                      ← Home
+                      <ArrowLeft size={20} /> Home
                     </button>
                   )}
                   <div className="flex gap-3 w-full">
@@ -1459,666 +1459,662 @@ export default function BitmapOCIApp() {
                       )}
                     </button>
                   </div>
-                  {error && (
-                    <div className="bg-orange-900 border-2 border-orange-700 rounded-lg p-4 flex items-start gap-3">
-                      <AlertCircle className="text-orange-400 flex-shrink-0 mt-0.5" size={20} />
-                      <p className="text-orange-200">{error}</p>
+                </div>
+                {error && (
+                  <div className="bg-orange-900 border-2 border-orange-700 rounded-lg p-4 flex items-start gap-3">
+                    <AlertCircle className="text-orange-400 flex-shrink-0 mt-0.5" size={20} />
+                    <p className="text-orange-200">{error}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {result && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-orange-700">
+                  <div className="flex items-center gap-3 mb-6">
+                    <CheckCircle className="text-orange-400" size={28} />
+                    <h2 className="text-2xl font-bold text-white">Results</h2>
+                    <button
+                      onClick={() => {
+                        if (!show3DView) {
+                          setShow3DView(true);
+                          setIsFullscreen(true);
+                        } else {
+                          setShow3DView(false);
+                          setIsFullscreen(false);
+                        }
+                      }}
+                      className="ml-auto bg-orange-600 text-white rounded-lg px-4 py-2 font-semibold hover:bg-orange-500 transition-all"
+                    >
+                      {show3DView ? '2D View' : '3D View'}
+                    </button>
+                  </div>
+                  {!show3DView && (
+                    <p className="text-orange-400 text-sm mt-2 text-center mb-4">
+                      Allow longer for higher numbers of transactions to render - please be patient!
+                    </p>
+                  )}
+                  {bitmapImage && !show3DView && (
+                    <div className="space-y-2 mb-6">
+                      <p className="text-sm text-orange-300">
+                        Block Visualization (Transaction Grid)
+                        {isHomePage && <span className="ml-2 text-green-400">• Click squares to explore</span>}
+                      </p>
+                      <div className="bg-gray-800 rounded-lg border border-orange-600 overflow-hidden w-full">
+                        {isHomePage ? (
+                          <ClickableBitmapGrid
+                            imageDataUrl={bitmapImage}
+                            txList={result.txList}
+                            parcels={parcels}
+                            otherChildren={otherChildren}
+                            onSquareClick={(index) => {
+                              if (index < parcels.length) {
+                                fetchParcelChildren(parcels[index].id);
+                              } else if (index < parcels.length + otherChildren.length) {
+                                const childIndex = index - parcels.length;
+                                setSelectedChild(otherChildren[childIndex]);
+                                setSelectedParcel(null);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <img
+                            src={bitmapImage}
+                            alt={`Visualization for block ${result.bitmapNumber}`}
+                            className="w-full h-auto"
+                          />
+                        )}
+                      </div>
+                      <p className="text-xs text-orange-400 text-center">
+                        {result.transactions} transactions • 1 square = 1 transaction
+                      </p>
                     </div>
                   )}
-                </div>
-              </div>
-
-              {result && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-orange-700">
-                    <div className="flex items-center gap-3 mb-6">
-                      <CheckCircle className="text-orange-400" size={28} />
-                      <h2 className="text-2xl font-bold text-white">Results</h2>
-                      <button
-                        onClick={() => {
-                          if (!show3DView) {
-                            setShow3DView(true);
-                            setIsFullscreen(true);
-                          } else {
-                            setShow3DView(false);
-                            setIsFullscreen(false);
-                          }
-                        }}
-                        className="ml-auto bg-orange-600 text-white rounded-lg px-4 py-2 font-semibold hover:bg-orange-500 transition-all"
-                      >
-                        {show3DView ? '2D View' : '3D View'}
-                      </button>
-                      {!show3DView && (
-                        <p className="text-orange-400 text-sm mt-2 text-center">
-                          Allow longer for higher numbers of transactions to render - please be patient!
-                        </p>
-                      )}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center">
+                      <p className="text-sm text-orange-300 mb-1 text-center">Bitmap Number</p>
+                      <p className="text-lg font-bold text-orange-400 text-center">{result.bitmapNumber}</p>
                     </div>
-                    {bitmapImage && !show3DView && (
-                      <div className="space-y-2 mb-6">
-                        <p className="text-sm text-orange-300">
-                          Block Visualization (Transaction Grid)
-                          {isHomePage && <span className="ml-2 text-green-400">• Click squares to explore</span>}
-                        </p>
-                        <div className="bg-gray-800 rounded-lg border border-orange-600 overflow-hidden w-full">
-                          {isHomePage ? (
-                            <ClickableBitmapGrid
-                              imageDataUrl={bitmapImage}
-                              txList={result.txList}
-                              parcels={parcels}
-                              otherChildren={otherChildren}
-                              onSquareClick={(index) => {
-                                // Check if this transaction has a parcel
-                                if (index < parcels.length) {
-                                  fetchParcelChildren(parcels[index].id);
-                                } else if (index < parcels.length + otherChildren.length) {
-                                  // It's an "other child"
-                                  const childIndex = index - parcels.length;
-                                  setSelectedChild(otherChildren[childIndex]);
-                                  setSelectedParcel(null);
-                                }
-                              }}
-                            />
-                          ) : (
-                            <img
-                              src={bitmapImage}
-                              alt={`Visualization for block ${result.bitmapNumber}`}
-                              className="w-full h-auto"
-                            />
-                          )}
-                        </div>
-                        <p className="text-xs text-orange-400 text-center">
-                          {result.transactions} transactions • 1 square = 1 transaction
-                        </p>
-                      </div>
-                    )}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                      <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center">
-                        <p className="text-sm text-orange-300 mb-1 text-center">Bitmap Number</p>
-                        <p className="text-lg font-bold text-orange-400 text-center">{result.bitmapNumber}</p>
-                      </div>
-                      <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center">
-                        <p className="text-sm text-orange-300 mb-1 text-center">Block Height</p>
-                        <p className="text-lg font-semibold text-white text-center">{result.blockHeight}</p>
-                      </div>
-                      <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center">
-                        <p className="text-sm text-orange-300 mb-1 text-center">Sat Number</p>
-                        <p className="text-sm font-semibold text-white text-center truncate">{result.sat}</p>
-                      </div>
+                    <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center">
+                      <p className="text-sm text-orange-300 mb-1 text-center">Block Height</p>
+                      <p className="text-lg font-semibold text-white text-center">{result.blockHeight}</p>
+                    </div>
+                    <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center">
+                      <p className="text-sm text-orange-300 mb-1 text-center">Sat Number</p>
+                      <p className="text-sm font-semibold text-white text-center truncate">{result.sat}</p>
+                    </div>
+                    <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center group relative">
+                      <p className="text-sm text-orange-300 mb-1 text-center">Owner Address</p>
+                      <p className="text-xs font-mono text-white text-center truncate w-32" title={result.ownerAddress}>
+                        {result.ownerAddress ? `${result.ownerAddress.slice(0, 6)}...${result.ownerAddress.slice(-4)}` : 'Unknown'}
+                      </p>
+                      <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-gray-900 text-orange-300 text-xs p-2 rounded-lg border border-orange-600 opacity-0 group-hover:opacity-100 transition-opacity z-10 max-w-xs break-all pointer-events-none">
+                        {result.ownerAddress || 'Unknown'}
+                      </span>
+                    </div>
+                    <div className="bg-orange-900 rounded-lg p-4 border-2 border-orange-700 w-40 h-40 flex flex-col justify-center items-center">
+                      <p className="text-sm text-orange-300 mb-1 text-center">Block Transactions</p>
+                      <p className="text-lg font-bold text-orange-400 text-center">{result.transactions}</p>
+                    </div>
+                    {result.blockHash && (
                       <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center group relative">
-                        <p className="text-sm text-orange-300 mb-1 text-center">Owner Address</p>
-                        <p className="text-xs font-mono text-white text-center truncate w-32" title={result.ownerAddress}>
-                          {result.ownerAddress ? `${result.ownerAddress.slice(0, 6)}...${result.ownerAddress.slice(-4)}` : 'Unknown'}
-                        </p>
+                        <p className="text-sm text-orange-300 mb-1 text-center">Block Hash</p>
+                        <p className="text-xs font-mono text-white text-center truncate w-32" title={result.blockHash}>{result.blockHash}</p>
                         <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-gray-900 text-orange-300 text-xs p-2 rounded-lg border border-orange-600 opacity-0 group-hover:opacity-100 transition-opacity z-10 max-w-xs break-all pointer-events-none">
-                          {result.ownerAddress || 'Unknown'}
+                          {result.blockHash}
                         </span>
                       </div>
+                    )}
+                    {result.timestamp && (
+                      <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center">
+                        <p className="text-sm text-orange-300 mb-1 text-center">Block Timestamp</p>
+                        <p className="text-xs text-white text-center line-clamp-2">{new Date(result.timestamp * 1000).toLocaleString()}</p>
+                      </div>
+                    )}
+                    {result.size > 0 && (
+                      <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center">
+                        <p className="text-sm text-orange-300 mb-1 text-center">Block Size</p>
+                        <p className="text-sm text-white text-center">{(result.size / 1024).toFixed(2)} KB</p>
+                      </div>
+                    )}
+                    {result.satIndex > 0 && (
                       <div className="bg-orange-900 rounded-lg p-4 border-2 border-orange-700 w-40 h-40 flex flex-col justify-center items-center">
-                        <p className="text-sm text-orange-300 mb-1 text-center">Block Transactions</p>
-                        <p className="text-lg font-bold text-orange-400 text-center">{result.transactions}</p>
+                        <p className="text-sm text-orange-300 mb-1 text-center">Sat Index (Reinscription)</p>
+                        <p className="text-lg font-semibold text-orange-400 text-center">{result.satIndex}</p>
                       </div>
-                      {result.blockHash && (
-                        <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center group relative">
-                          <p className="text-sm text-orange-300 mb-1 text-center">Block Hash</p>
-                          <p className="text-xs font-mono text-white text-center truncate w-32" title={result.blockHash}>{result.blockHash}</p>
-                          <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-gray-900 text-orange-300 text-xs p-2 rounded-lg border border-orange-600 opacity-0 group-hover:opacity-100 transition-opacity z-10 max-w-xs break-all pointer-events-none">
-                            {result.blockHash}
-                          </span>
-                        </div>
-                      )}
-                      {result.timestamp && (
-                        <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center">
-                          <p className="text-sm text-orange-300 mb-1 text-center">Block Timestamp</p>
-                          <p className="text-xs text-white text-center line-clamp-2">{new Date(result.timestamp * 1000).toLocaleString()}</p>
-                        </div>
-                      )}
-                      {result.size > 0 && (
-                        <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-center items-center">
-                          <p className="text-sm text-orange-300 mb-1 text-center">Block Size</p>
-                          <p className="text-sm text-white text-center">{(result.size / 1024).toFixed(2)} KB</p>
-                        </div>
-                      )}
-                      {result.satIndex > 0 && (
-                        <div className="bg-orange-900 rounded-lg p-4 border-2 border-orange-700 w-40 h-40 flex flex-col justify-center items-center">
-                          <p className="text-sm text-orange-300 mb-1 text-center">Sat Index (Reinscription)</p>
-                          <p className="text-lg font-semibold text-orange-400 text-center">{result.satIndex}</p>
-                        </div>
-                      )}
-                      <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-between items-center group relative">
-                        <div className="text-center">
-                          <p className="text-sm text-orange-300 mb-1">Inscription ID</p>
-                          <p className="text-xs font-mono text-white truncate w-32" title={result.inscriptionId}>{result.inscriptionId}</p>
-                          <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-gray-900 text-orange-300 text-xs p-2 rounded-lg border border-orange-600 opacity-0 group-hover:opacity-100 transition-opacity z-10 max-w-xs break-all pointer-events-none">
-                            {result.inscriptionId}
-                          </span>
-                        </div>
-                        <a
-                          href={`https://ordinals.com/inscription/${result.inscriptionId}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-orange-400 hover:text-orange-300 font-semibold"
-                        >
-                          View on ordinals.com &rarr;
-                        </a>
+                    )}
+                    <div className="bg-gray-800 rounded-lg p-4 border border-orange-600 w-40 h-40 flex flex-col justify-between items-center group relative">
+                      <div className="text-center">
+                        <p className="text-sm text-orange-300 mb-1">Inscription ID</p>
+                        <p className="text-xs font-mono text-white truncate w-32" title={result.inscriptionId}>{result.inscriptionId}</p>
+                        <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-gray-900 text-orange-300 text-xs p-2 rounded-lg border border-orange-600 opacity-0 group-hover:opacity-100 transition-opacity z-10 max-w-xs break-all pointer-events-none">
+                          {result.inscriptionId}
+                        </span>
                       </div>
+                      <a
+                        href={`https://ordinals.com/inscription/${result.inscriptionId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-orange-400 hover:text-orange-300 font-semibold"
+                      >
+                        View on ordinals.com &rarr;
+                      </a>
                     </div>
-
                   </div>
+                </div>
 
-                  <div className="space-y-6">
-                    <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-orange-700">
-                      <div className="flex items-center gap-3 mb-6">
-                        <Grid3x3 className="text-orange-400" size={28} />
-                        <h2 className="text-2xl font-bold text-white">Parcels</h2>
-                        {loadingParcels && <Loader2 className="animate-spin text-orange-400" size={20} />}
-                      </div>
-                      {parcels.length === 0 && otherChildren.length === 0 && !loadingParcels && (
-                        <p className="text-orange-300 text-center py-8">No children found for this bitmap</p>
-                      )}
-                      {parcels.length > 0 && (
-                        <div className="mb-8">
-                          <div className="flex items-center gap-3 mb-4">
-                            <Grid3x3 className="text-green-400" size={28} />
-                            <h2 className="text-2xl font-bold text-white">Parcels ({parcels.length})</h2>
-                          </div>
-                          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-96 overflow-y-auto">
-                            {parcels.map((parcel, index) => {
-                              // Use the actual parcel name from content, or fallback to generated name
-                              const parcelName = parcel.parcelName || `${index}.${result.bitmapNumber}.bitmap`;
-                              return (
-                                <button
-                                  key={parcel.id}
-                                  onClick={() => fetchParcelDetails(parcel)}
-                                  className={`group bg-gray-800 rounded-lg border-2 transition-all overflow-hidden relative ${selectedParcel === parcel.id
-                                      ? 'border-green-400 shadow-[0_0_20px_rgba(74,222,128,0.8)] scale-105'
-                                      : 'border-green-600 hover:border-green-400'
-                                    }`}
-                                >
-                                  <div className="aspect-square relative">
-                                    {parcel.hasImage ? (
-                                      <img
-                                        src={`https://ordinals.com/content/${parcel.id}`}
-                                        alt={parcelName}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          e.target.style.display = 'none';
-                                          e.target.nextSibling.style.display = 'flex';
-                                        }}
-                                      />
-                                    ) : null}
-                                    <div
-                                      className={`w-full h-full bg-green-800/30 flex items-center justify-center ${parcel.hasImage ? 'hidden' : 'flex'
-                                        }`}
-                                    >
-                                      <ImageIcon className="text-green-400/50" size={48} />
-                                    </div>
-                                  </div>
-                                  <div className="p-3 bg-gray-900 border-t border-green-600">
-                                    <p className="text-xs text-green-300 truncate">{parcelName}</p>
-                                    <p className="text-xs text-gray-400 truncate font-mono mt-1">{parcel.id.slice(0, 8)}...</p>
-                                  </div>
-                                  <div className="absolute top-2 right-2 bg-green-600 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <ChevronRight className="text-white" size={16} />
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                          <p className="text-green-300 text-center mt-4 text-sm">
-                            Showing all {parcels.length} parcels (using .bitmap naming convention)
-                          </p>
-                        </div>
-                      )}
+                <div className="space-y-6">
+                  <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-orange-700">
+                    <div className="flex items-center gap-3 mb-6">
+                      <Grid3x3 className="text-orange-400" size={28} />
+                      <h2 className="text-2xl font-bold text-white">Parcels</h2>
+                      {loadingParcels && <Loader2 className="animate-spin text-orange-400" size={20} />}
                     </div>
-
-                    {/* Other Children */}
-                    {otherChildren.length > 0 && (
-                      <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-purple-700 mt-6">
-                        <div className="flex items-center gap-3 mb-6">
-                          <Grid3x3 className="text-purple-400" size={28} />
-                          <h2 className="text-2xl font-bold text-white">Other Children ({otherChildren.length})</h2>
+                    {parcels.length === 0 && otherChildren.length === 0 && !loadingParcels && (
+                      <p className="text-orange-300 text-center py-8">No children found for this bitmap</p>
+                    )}
+                    {parcels.length > 0 && (
+                      <div className="mb-8">
+                        <div className="flex items-center gap-3 mb-4">
+                          <Grid3x3 className="text-green-400" size={28} />
+                          <h2 className="text-2xl font-bold text-white">Parcels ({parcels.length})</h2>
                         </div>
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-96 overflow-y-auto">
-                          {otherChildren.map((child) => (
-                            <button
-                              key={child.id}
-                              onClick={() => fetchChildDetails(child)}
-                              className={`group bg-gray-800 rounded-lg border-2 transition-all overflow-hidden relative ${selectedChild?.id === child.id
-                                  ? 'border-purple-400 shadow-[0_0_20px_rgba(192,132,252,0.8)] scale-105'
-                                  : 'border-purple-600 hover:border-purple-400 hover:shadow-[0_0_15px_rgba(192,132,252,0.5)]'
-                                }`}
-                            >
-                              <div className="aspect-square relative">
-                                {child.hasImage ? (
-                                  child.contentType?.startsWith('image/') ? (
+                          {parcels.map((parcel, index) => {
+                            const parcelName = parcel.parcelName || `${index}.${result.bitmapNumber}.bitmap`;
+                            return (
+                              <button
+                                key={parcel.id}
+                                onClick={() => fetchParcelDetails(parcel)}
+                                className={`group bg-gray-800 rounded-lg border-2 transition-all overflow-hidden relative ${selectedParcel === parcel.id
+                                  ? 'border-green-400 shadow-[0_0_20px_rgba(74,222,128,0.8)] scale-105'
+                                  : 'border-green-600 hover:border-green-400'
+                                  }`}
+                              >
+                                <div className="aspect-square relative">
+                                  {parcel.hasImage ? (
                                     <img
-                                      src={`https://ordinals.com/content/${child.id}`}
-                                      alt={`Child ${child.childNumber}`}
+                                      src={`https://ordinals.com/content/${parcel.id}`}
+                                      alt={parcelName}
                                       className="w-full h-full object-cover"
                                       onError={(e) => {
                                         e.target.style.display = 'none';
-                                        e.target.parentElement.querySelector('.fallback-icon').style.display = 'flex';
+                                        e.target.nextSibling.style.display = 'flex';
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div
+                                    className={`w-full h-full bg-green-800/30 flex items-center justify-center ${parcel.hasImage ? 'hidden' : 'flex'
+                                      }`}
+                                  >
+                                    <ImageIcon className="text-green-400/50" size={48} />
+                                  </div>
+                                </div>
+                                <div className="p-3 bg-gray-900 border-t border-green-600">
+                                  <p className="text-xs text-green-300 truncate">{parcelName}</p>
+                                  <p className="text-xs text-gray-400 truncate font-mono mt-1">{parcel.id.slice(0, 8)}...</p>
+                                </div>
+                                <div className="absolute top-2 right-2 bg-green-600 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <ChevronRight className="text-white" size={16} />
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <p className="text-green-300 text-center mt-4 text-sm">
+                          Showing all {parcels.length} parcels (using .bitmap naming convention)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {otherChildren.length > 0 && (
+                    <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-purple-700 mt-6">
+                      <div className="flex items-center gap-3 mb-6">
+                        <Grid3x3 className="text-purple-400" size={28} />
+                        <h2 className="text-2xl font-bold text-white">Other Children ({otherChildren.length})</h2>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-96 overflow-y-auto">
+                        {otherChildren.map((child) => (
+                          <button
+                            key={child.id}
+                            onClick={() => fetchChildDetails(child)}
+                            className={`group bg-gray-800 rounded-lg border-2 transition-all overflow-hidden relative ${selectedChild?.id === child.id
+                              ? 'border-purple-400 shadow-[0_0_20px_rgba(192,132,252,0.8)] scale-105'
+                              : 'border-purple-600 hover:border-purple-400 hover:shadow-[0_0_15px_rgba(192,132,252,0.5)]'
+                              }`}
+                          >
+                            <div className="aspect-square relative">
+                              {child.hasImage ? (
+                                child.contentType?.startsWith('image/') ? (
+                                  <img
+                                    src={`https://ordinals.com/content/${child.id}`}
+                                    alt={`Child ${child.childNumber}`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                      e.target.parentElement.querySelector('.fallback-icon').style.display = 'flex';
+                                    }}
+                                  />
+                                ) : (
+                                  <iframe
+                                    src={`https://ordinals.com/content/${child.id}`}
+                                    title={`Child ${child.childNumber}`}
+                                    className="w-full h-full border-0 pointer-events-none"
+                                    sandbox="allow-scripts"
+                                  />
+                                )
+                              ) : null}
+                              <div className={`fallback-icon w-full h-full bg-purple-800/30 flex items-center justify-center absolute inset-0 ${child.hasImage ? 'hidden' : 'flex'}`}>
+                                <ImageIcon className="text-purple-400/50" size={32} />
+                              </div>
+                            </div>
+                            <div className="p-2 bg-gray-900 border-t border-purple-600">
+                              <p className="text-xs text-purple-300 truncate">Child #{child.childNumber}</p>
+                              <p className="text-xs text-gray-400 truncate font-mono">{child.id.slice(0, 8)}...</p>
+                              <p className="text-xs text-green-400 truncate font-mono">
+                                {child.ownerAddress ? `${child.ownerAddress.slice(0, 6)}***${child.ownerAddress.slice(-4)}` : 'Click to view'}
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedChild && (
+                    <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-purple-700">
+                      <div className="flex items-center gap-3 mb-6">
+                        <button
+                          onClick={() => setSelectedChild(null)}
+                          className="text-purple-400 hover:text-purple-300 transition-colors"
+                        >
+                          <ArrowLeft size={24} />
+                        </button>
+                        <h2 className="text-2xl font-bold text-white">Child Inscription Details</h2>
+                      </div>
+
+                      <div className="bg-gray-800 rounded-lg p-4 border border-purple-600 mb-4">
+                        <p className="text-xs text-purple-300 mb-1">Inscription ID</p>
+                        <p className="text-xs font-mono text-white break-all">{selectedChild.id}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-gray-800 rounded-lg p-4 border border-purple-600">
+                          <p className="text-xs text-purple-300 mb-1">Child Number</p>
+                          <p className="text-white font-semibold">#{selectedChild.childNumber}</p>
+                        </div>
+
+                        <div className="bg-gray-800 rounded-lg p-4 border border-purple-600">
+                          <p className="text-xs text-purple-300 mb-1">Content Type</p>
+                          <p className="text-white font-semibold">{selectedChild.contentType}</p>
+                        </div>
+
+                        <div className="bg-gray-800 rounded-lg p-4 border border-purple-600 col-span-2">
+                          <p className="text-xs text-purple-300 mb-1">Owner</p>
+                          <p className="text-white font-mono text-sm truncate" title={selectedChild.ownerAddress || 'Unknown'}>
+                            {selectedChild.ownerAddress ? `${selectedChild.ownerAddress.slice(0, 6)}***${selectedChild.ownerAddress.slice(-4)}` : 'Unknown'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        {selectedChild.hasImage ? (
+                          <div className="bg-gray-800 rounded-lg p-4 border border-purple-600">
+                            <p className="text-xs text-purple-300 mb-2">Preview</p>
+                            {selectedChild.contentType?.startsWith('image/') ? (
+                              <img
+                                src={`https://ordinals.com/content/${selectedChild.id}`}
+                                alt={`Child ${selectedChild.childNumber}`}
+                                className="w-full max-h-96 object-contain rounded"
+                                onError={(e) => {
+                                  e.target.parentElement.innerHTML = '<div class="text-center py-8"><p class="text-purple-300">Failed to load preview</p></div>';
+                                }}
+                              />
+                            ) : (
+                              <iframe
+                                src={`https://ordinals.com/content/${selectedChild.id}`}
+                                title={`Child ${selectedChild.childNumber}`}
+                                className="w-full h-96 border-0 rounded bg-white"
+                                sandbox="allow-scripts"
+                              />
+                            )}
+                          </div>
+                        ) : (
+                          <div className="bg-gray-800 rounded-lg p-8 border border-purple-600 text-center">
+                            <ImageIcon className="text-purple-400/50 mx-auto mb-2" size={64} />
+                            <p className="text-purple-300">No preview available</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <a
+                        href={`https://ordinals.com/inscription/${selectedChild.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-4 block text-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors"
+                      >
+                        View on ordinals.com &rarr;
+                      </a>
+                    </div>
+                  )}
+
+                  {selectedParcel && (
+                    <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-green-700 mb-6">
+                      <div className="flex items-center gap-3 mb-6">
+                        <button
+                          onClick={() => {
+                            setSelectedParcel(null);
+                            setParcelChildren([]);
+                          }}
+                          className="text-green-400 hover:text-green-300 transition-colors"
+                        >
+                          <ArrowLeft size={24} />
+                        </button>
+                        <h2 className="text-2xl font-bold text-white">Parcel Inscription Details</h2>
+                      </div>
+
+                      {(() => {
+                        const parcelData = parcels.find(p => p.id === selectedParcel);
+                        if (!parcelData) return null;
+
+                        return (
+                          <>
+                            <div className="bg-gray-800 rounded-lg p-4 border border-green-600 mb-4">
+                              <p className="text-xs text-green-300 mb-1">Inscription ID</p>
+                              <p className="text-xs font-mono text-white break-all">{parcelData.id}</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="bg-gray-800 rounded-lg p-4 border border-green-600">
+                                <p className="text-xs text-green-300 mb-1">Parcel Name</p>
+                                <p className="text-white font-semibold">{parcelData.parcelName || 'Unknown'}</p>
+                              </div>
+
+                              <div className="bg-gray-800 rounded-lg p-4 border border-green-600">
+                                <p className="text-xs text-green-300 mb-1">Content Type</p>
+                                <p className="text-white font-semibold">{parcelData.contentType}</p>
+                              </div>
+
+                              <div className="bg-gray-800 rounded-lg p-4 border border-green-600 col-span-2">
+                                <p className="text-xs text-green-300 mb-1">Owner</p>
+                                <p className="text-white font-mono text-sm truncate" title={parcelData.ownerAddress || 'Loading...'}>
+                                  {parcelData.ownerAddress ? `${parcelData.ownerAddress.slice(0, 6)}***${parcelData.ownerAddress.slice(-4)}` : 'Loading...'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-4">
+                              {parcelData.hasImage ? (
+                                <div className="bg-gray-800 rounded-lg p-4 border border-green-600">
+                                  <p className="text-xs text-green-300 mb-2">Preview</p>
+                                  {parcelData.contentType?.startsWith('image/') ? (
+                                    <img
+                                      src={`https://ordinals.com/content/${parcelData.id}`}
+                                      alt={parcelData.parcelName}
+                                      className="w-full max-h-96 object-contain rounded"
+                                      onError={(e) => {
+                                        e.target.parentElement.innerHTML = '<div class="text-center py-8"><p class="text-green-300">Failed to load preview</p></div>';
                                       }}
                                     />
                                   ) : (
                                     <iframe
-                                      src={`https://ordinals.com/content/${child.id}`}
-                                      title={`Child ${child.childNumber}`}
-                                      className="w-full h-full border-0 pointer-events-none"
+                                      src={`https://ordinals.com/content/${parcelData.id}`}
+                                      title={parcelData.parcelName}
+                                      className="w-full h-96 border-0 rounded bg-white"
                                       sandbox="allow-scripts"
                                     />
-                                  )
-                                ) : null}
-                                <div className={`fallback-icon w-full h-full bg-purple-800/30 flex items-center justify-center absolute inset-0 ${child.hasImage ? 'hidden' : 'flex'}`}>
-                                  <ImageIcon className="text-purple-400/50" size={32} />
+                                  )}
                                 </div>
-                              </div>
-                              <div className="p-2 bg-gray-900 border-t border-purple-600">
-                                <p className="text-xs text-purple-300 truncate">Child #{child.childNumber}</p>
-                                <p className="text-xs text-gray-400 truncate font-mono">{child.id.slice(0, 8)}...</p>
-                                <p className="text-xs text-green-400 truncate font-mono">
-                                  {child.ownerAddress ? `${child.ownerAddress.slice(0, 6)}***${child.ownerAddress.slice(-4)}` : 'Click to view'}
-                                </p>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {/* Selected Child Detail */}
-                    {selectedChild && (
-                      <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-purple-700">
-                        <div className="flex items-center gap-3 mb-6">
-                          <button
-                            onClick={() => setSelectedChild(null)}
-                            className="text-purple-400 hover:text-purple-300 transition-colors"
-                          >
-                            <ArrowLeft size={24} />
-                          </button>
-                          <h2 className="text-2xl font-bold text-white">Child Inscription Details</h2>
-                        </div>
-
-                        <div className="bg-gray-800 rounded-lg p-4 border border-purple-600 mb-4">
-                          <p className="text-xs text-purple-300 mb-1">Inscription ID</p>
-                          <p className="text-xs font-mono text-white break-all">{selectedChild.id}</p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-gray-800 rounded-lg p-4 border border-purple-600">
-                            <p className="text-xs text-purple-300 mb-1">Child Number</p>
-                            <p className="text-white font-semibold">#{selectedChild.childNumber}</p>
-                          </div>
-
-                          <div className="bg-gray-800 rounded-lg p-4 border border-purple-600">
-                            <p className="text-xs text-purple-300 mb-1">Content Type</p>
-                            <p className="text-white font-semibold">{selectedChild.contentType}</p>
-                          </div>
-
-                          <div className="bg-gray-800 rounded-lg p-4 border border-purple-600 col-span-2">
-                            <p className="text-xs text-purple-300 mb-1">Owner</p>
-                            <p className="text-white font-mono text-sm truncate" title={selectedChild.ownerAddress || 'Unknown'}>
-                              {selectedChild.ownerAddress ? `${selectedChild.ownerAddress.slice(0, 6)}***${selectedChild.ownerAddress.slice(-4)}` : 'Unknown'}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="mt-4">
-                          {selectedChild.hasImage ? (
-                            <div className="bg-gray-800 rounded-lg p-4 border border-purple-600">
-                              <p className="text-xs text-purple-300 mb-2">Preview</p>
-                              {selectedChild.contentType?.startsWith('image/') ? (
-                                <img
-                                  src={`https://ordinals.com/content/${selectedChild.id}`}
-                                  alt={`Child ${selectedChild.childNumber}`}
-                                  className="w-full max-h-96 object-contain rounded"
-                                  onError={(e) => {
-                                    e.target.parentElement.innerHTML = '<div class="text-center py-8"><p class="text-purple-300">Failed to load preview</p></div>';
-                                  }}
-                                />
                               ) : (
-                                <iframe
-                                  src={`https://ordinals.com/content/${selectedChild.id}`}
-                                  title={`Child ${selectedChild.childNumber}`}
-                                  className="w-full h-96 border-0 rounded bg-white"
-                                  sandbox="allow-scripts"
-                                />
+                                <div className="bg-gray-800 rounded-lg p-8 border border-green-600 text-center">
+                                  <ImageIcon className="text-green-400/50 mx-auto mb-2" size={64} />
+                                  <p className="text-green-300">No preview available</p>
+                                </div>
                               )}
                             </div>
-                          ) : (
-                            <div className="bg-gray-800 rounded-lg p-8 border border-purple-600 text-center">
-                              <ImageIcon className="text-purple-400/50 mx-auto mb-2" size={64} />
-                              <p className="text-purple-300">No preview available</p>
-                            </div>
-                          )}
-                        </div>
 
-                        <a
-                          href={`https://ordinals.com/inscription/${selectedChild.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-4 block text-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors"
-                        >
-                          View on ordinals.com &rarr;
-                        </a>
-                      </div>
-                    )}
-
-                    {selectedParcel && (
-                      <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-green-700 mb-6">
-                        <div className="flex items-center gap-3 mb-6">
-                          <button
-                            onClick={() => {
-                              setSelectedParcel(null);
-                              setParcelChildren([]);
-                            }}
-                            className="text-green-400 hover:text-green-300 transition-colors"
-                          >
-                            <ArrowLeft size={24} />
-                          </button>
-                          <h2 className="text-2xl font-bold text-white">Parcel Inscription Details</h2>
-                        </div>
-
-                        {(() => {
-                          const parcelData = parcels.find(p => p.id === selectedParcel);
-                          if (!parcelData) return null;
-
-                          return (
-                            <>
-                              <div className="bg-gray-800 rounded-lg p-4 border border-green-600 mb-4">
-                                <p className="text-xs text-green-300 mb-1">Inscription ID</p>
-                                <p className="text-xs font-mono text-white break-all">{parcelData.id}</p>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-gray-800 rounded-lg p-4 border border-green-600">
-                                  <p className="text-xs text-green-300 mb-1">Parcel Name</p>
-                                  <p className="text-white font-semibold">{parcelData.parcelName || 'Unknown'}</p>
-                                </div>
-
-                                <div className="bg-gray-800 rounded-lg p-4 border border-green-600">
-                                  <p className="text-xs text-green-300 mb-1">Content Type</p>
-                                  <p className="text-white font-semibold">{parcelData.contentType}</p>
-                                </div>
-
-                                <div className="bg-gray-800 rounded-lg p-4 border border-green-600 col-span-2">
-                                  <p className="text-xs text-green-300 mb-1">Owner</p>
-                                  <p className="text-white font-mono text-sm truncate" title={parcelData.ownerAddress || 'Loading...'}>
-                                    {parcelData.ownerAddress ? `${parcelData.ownerAddress.slice(0, 6)}***${parcelData.ownerAddress.slice(-4)}` : 'Loading...'}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="mt-4">
-                                {parcelData.hasImage ? (
-                                  <div className="bg-gray-800 rounded-lg p-4 border border-green-600">
-                                    <p className="text-xs text-green-300 mb-2">Preview</p>
-                                    {parcelData.contentType?.startsWith('image/') ? (
-                                      <img
-                                        src={`https://ordinals.com/content/${parcelData.id}`}
-                                        alt={parcelData.parcelName}
-                                        className="w-full max-h-96 object-contain rounded"
-                                        onError={(e) => {
-                                          e.target.parentElement.innerHTML = '<div class="text-center py-8"><p class="text-green-300">Failed to load preview</p></div>';
-                                        }}
-                                      />
-                                    ) : (
-                                      <iframe
-                                        src={`https://ordinals.com/content/${parcelData.id}`}
-                                        title={parcelData.parcelName}
-                                        className="w-full h-96 border-0 rounded bg-white"
-                                        sandbox="allow-scripts"
-                                      />
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div className="bg-gray-800 rounded-lg p-8 border border-green-600 text-center">
-                                    <ImageIcon className="text-green-400/50 mx-auto mb-2" size={64} />
-                                    <p className="text-green-300">No preview available</p>
-                                  </div>
-                                )}
-                              </div>
-
-                              <a
-                                href={`https://ordinals.com/inscription/${parcelData.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="mt-4 block text-center px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-500 transition-colors"
-                              >
-                                View on ordinals.com &rarr;
-                              </a>
-                            </>
-                          );
-                        })()}
-                      </div>
-                    )}
-
-                    {selectedParcel && (
-                      <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-orange-700">
-                        <div className="flex items-center gap-3 mb-6">
-                          <h2 className="text-2xl font-bold text-white">Parcel Children ({parcelChildren.length})</h2>
-                          {loadingChildren && <Loader2 className="animate-spin text-orange-400" size={20} />}
-                        </div>
-                        {parcelChildren.length === 0 && !loadingChildren && (
-                          <p className="text-orange-300 text-center py-8">No children found for this parcel</p>
-                        )}
-                        {parcelChildren.length > 0 && (
-                          <div className="space-y-3">
-                            {parcelChildren.map((child, index) => {
-                              const childNum = index + 1;
-                              const childName = `${childNum}.${result.bitmapNumber}.bitmap`; // Assumes child inherits bitmap context; adjust if needed
-                              return (
-                                <div
-                                  key={child.id}
-                                  className="bg-gray-800 rounded-lg border border-orange-600 p-4 flex gap-4"
-                                >
-                                  <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-orange-800/30">
-                                    {child.hasImage ? (
-                                      <img
-                                        src={`https://ordinals.com/content/${child.id}`}
-                                        alt={`Child ${childNum}`}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          e.target.style.display = 'none';
-                                          e.target.nextSibling.style.display = 'flex';
-                                        }}
-                                      />
-                                    ) : null}
-                                    <div
-                                      className={`w-full h-full flex items-center justify-center ${child.hasImage ? 'hidden' : 'flex'
-                                        }`}
-                                    >
-                                      <ImageIcon className="text-orange-400/50" size={32} />
-                                    </div>
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-orange-300 mb-1">{childName}</p>
-                                    <p className="text-xs font-mono text-white break-all mb-2">{child.id}</p>
-                                    <p className="text-xs text-gray-400">{child.contentType}</p>
-                                    <a
-                                      href={`https://ordinals.com/inscription/${child.id}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-block mt-2 text-xs text-orange-400 hover:text-orange-300"
-                                    >
-                                      View on ordinals.com →
-                                    </a>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </>
-        )}
-
-            {/* WALLET LINKING TAB */}
-            {activeTab === 'link' && (
-              <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border-2 border-purple-700">
-                <h2 className="text-2xl font-bold text-white mb-6">Link Your Wallets for HPEC DAO</h2>
-                <p className="text-gray-300 mb-6">Connect your Bitcoin wallet holding HPEC parcels/children and link it to your Cardano wallet for ADA distributions.</p>
-
-                {/* Success Message */}
-                {success && (
-                  <div className="mb-6 p-4 bg-green-900/50 border border-green-700 rounded-lg">
-                    <p className="text-green-300">{success}</p>
-                  </div>
-                )}
-
-                {/* Error Message */}
-                {walletError && (
-                  <div className="mb-6 p-4 bg-red-900/50 border border-red-700 rounded-lg">
-                    <AlertCircle className="inline mr-2" size={20} />
-                    <span className="text-red-300">{walletError}</span>
-                  </div>
-                )}
-
-                <div className="space-y-6">
-                  {/* Bitcoin Wallet */}
-                  <div className="bg-gray-800 rounded-xl p-6 border-2 border-purple-600">
-                    <h3 className="text-xl font-bold text-white mb-4">Step 1: Connect Bitcoin Wallet</h3>
-                    <p className="text-gray-300 mb-4">Connect to verify ownership of HPEC parcels/children</p>
-
-                    <div className="flex gap-3 mb-4">
-                      <button
-                        onClick={connectXverseWallet}
-                        className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors"
-                      >
-                        {btcWallet === 'xverse' ? '✓ Xverse Connected' : 'Connect Xverse'}
-                      </button>
-                      <button
-                        onClick={connectUnisatWallet}
-                        className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors"
-                      >
-                        {btcWallet === 'unisat' ? '✓ Unisat Connected' : 'Connect Unisat'}
-                      </button>
+                            <a
+                              href={`https://ordinals.com/inscription/${parcelData.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-4 block text-center px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-500 transition-colors"
+                            >
+                              View on ordinals.com &rarr;
+                            </a>
+                          </>
+                        );
+                      })()}
                     </div>
-
-                    {btcAddress && (
-                      <div className="bg-gray-900 rounded-lg p-3 border border-purple-500">
-                        <p className="text-xs text-purple-300 mb-1">Connected Address:</p>
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-mono text-white break-all flex-1">{btcAddress}</p>
-                          <button
-                            onClick={() => navigator.clipboard.writeText(btcAddress)}
-                            className="p-2 bg-purple-700 rounded hover:bg-purple-600"
-                          >
-                            <Copy size={14} className="text-white" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Cardano Wallet */}
-                  <div className="bg-gray-800 rounded-xl p-6 border-2 border-orange-600">
-                    <h3 className="text-xl font-bold text-white mb-4">Step 2: Connect Cardano Wallet</h3>
-                    <p className="text-gray-300 mb-4">Connect for ADA distributions</p>
-
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <button
-                        onClick={() => connectCardanoWallet('vespr')}
-                        className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-500 transition-colors"
-                      >
-                        {cardanoWallet === 'vespr' ? '✓ Vespr' : 'Vespr'}
-                      </button>
-                      <button
-                        onClick={() => connectCardanoWallet('eternl')}
-                        className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-500 transition-colors"
-                      >
-                        {cardanoWallet === 'eternl' ? '✓ Eternl' : 'Eternl'}
-                      </button>
-                      <button
-                        onClick={() => connectCardanoWallet('nami')}
-                        className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-500 transition-colors"
-                      >
-                        {cardanoWallet === 'nami' ? '✓ Nami' : 'Nami'}
-                      </button>
-                      <button
-                        onClick={() => connectCardanoWallet('flint')}
-                        className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-500 transition-colors"
-                      >
-                        {cardanoWallet === 'flint' ? '✓ Flint' : 'Flint'}
-                      </button>
-                    </div>
-
-                    {adaAddress && (
-                      <div className="bg-gray-900 rounded-lg p-3 border border-orange-500">
-                        <p className="text-xs text-orange-300 mb-1">Connected Address ({cardanoWallet}):</p>
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-mono text-white break-all flex-1">{adaAddress}</p>
-                          <button
-                            onClick={() => navigator.clipboard.writeText(adaAddress)}
-                            className="p-2 bg-orange-700 rounded hover:bg-orange-600"
-                          >
-                            <Copy size={14} className="text-white" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Discord */}
-                  <div className="bg-gray-800 rounded-xl p-6 border-2 border-green-600">
-                    <h3 className="text-xl font-bold text-white mb-4">Step 3: Discord (Optional)</h3>
-                    <input
-                      type="text"
-                      value={discordUsername}
-                      onChange={(e) => setDiscordUsername(e.target.value)}
-                      placeholder="username#1234"
-                      className="w-full px-4 py-3 bg-gray-900 border-2 border-green-600 rounded-lg text-white"
-                    />
-                  </div>
-
-                  {/* Submit Button */}
-                  {btcAddress && adaAddress && (
-                    <button
-                      onClick={submitLinkage}
-                      className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-orange-600 text-white rounded-xl font-bold text-lg hover:from-purple-500 hover:to-orange-500 transition-all"
-                    >
-                      Submit Wallet Linkage
-                    </button>
                   )}
 
-                  {/* Existing Linkages */}
-                  {linkages.length > 0 && (
-                    <div className="bg-gray-800 rounded-xl p-6 border-2 border-blue-600 mt-6">
-                      <h3 className="text-xl font-bold text-white mb-4">Your Linked Wallets ({linkages.length})</h3>
-                      <div className="space-y-3">
-                        {linkages.map((linkage, index) => (
-                          <div key={index} className="bg-gray-900 rounded-lg p-4 border border-blue-500">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              <div>
-                                <p className="text-xs text-purple-300 mb-1">Bitcoin ({linkage.btcWallet})</p>
-                                <p className="text-xs font-mono text-white break-all">{linkage.btcAddress}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-orange-300 mb-1">Cardano ({linkage.cardanoWallet})</p>
-                                <p className="text-xs font-mono text-white break-all">{linkage.adaAddress}</p>
-                              </div>
-                            </div>
-                            {linkage.discordUsername && (
-                              <p className="text-xs text-green-300 mt-2">Discord: {linkage.discordUsername}</p>
-                            )}
-                            <p className="text-xs text-gray-500 mt-2">Linked: {new Date(linkage.timestamp).toLocaleString()}</p>
-                          </div>
-                        ))}
+                  {selectedParcel && (
+                    <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-orange-700">
+                      <div className="flex items-center gap-3 mb-6">
+                        <h2 className="text-2xl font-bold text-white">Parcel Children ({parcelChildren.length})</h2>
+                        {loadingChildren && <Loader2 className="animate-spin text-orange-400" size={20} />}
                       </div>
+                      {parcelChildren.length === 0 && !loadingChildren && (
+                        <p className="text-orange-300 text-center py-8">No children found for this parcel</p>
+                      )}
+                      {parcelChildren.length > 0 && (
+                        <div className="space-y-3">
+                          {parcelChildren.map((child, index) => {
+                            const childNum = index + 1;
+                            const childName = `${childNum}.${result.bitmapNumber}.bitmap`;
+                            return (
+                              <div
+                                key={child.id}
+                                className="bg-gray-800 rounded-lg border border-orange-600 p-4 flex gap-4"
+                              >
+                                <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-orange-800/30">
+                                  {child.hasImage ? (
+                                    <img
+                                      src={`https://ordinals.com/content/${child.id}`}
+                                      alt={`Child ${childNum}`}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'flex';
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div
+                                    className={`w-full h-full flex items-center justify-center ${child.hasImage ? 'hidden' : 'flex'
+                                      }`}
+                                  >
+                                    <ImageIcon className="text-orange-400/50" size={32} />
+                                  </div>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm text-orange-300 mb-1">{childName}</p>
+                                  <p className="text-xs font-mono text-white break-all mb-2">{child.id}</p>
+                                  <p className="text-xs text-gray-400">{child.contentType}</p>
+                                  <a
+                                    href={`https://ordinals.com/inscription/${child.id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-block mt-2 text-xs text-orange-400 hover:text-orange-300"
+                                  >
+                                    View on ordinals.com &rarr;
+                                  </a>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               </div>
             )}
+          </>
+        )}
 
-            <div className="mt-8 text-center text-orange-300 text-sm">
-              <p>HPEC DAO • 267651.bitmap • Powered by Ordinals</p>
+        {/* WALLET LINKING TAB */}
+        {activeTab === 'link' && (
+          <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border-2 border-purple-700">
+            <h2 className="text-2xl font-bold text-white mb-6">Link Your Wallets for HPEC DAO</h2>
+            <p className="text-gray-300 mb-6">Connect your Bitcoin wallet holding HPEC parcels/children and link it to your Cardano wallet for ADA distributions.</p>
+
+            {/* Success Message */}
+            {success && (
+              <div className="mb-6 p-4 bg-green-900/50 border border-green-700 rounded-lg">
+                <p className="text-green-300">{success}</p>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {walletError && (
+              <div className="mb-6 p-4 bg-red-900/50 border border-red-700 rounded-lg">
+                <AlertCircle className="inline mr-2" size={20} />
+                <span className="text-red-300">{walletError}</span>
+              </div>
+            )}
+
+            <div className="space-y-6">
+              {/* Bitcoin Wallet */}
+              <div className="bg-gray-800 rounded-xl p-6 border-2 border-purple-600">
+                <h3 className="text-xl font-bold text-white mb-4">Step 1: Connect Bitcoin Wallet</h3>
+                <p className="text-gray-300 mb-4">Connect to verify ownership of HPEC parcels/children</p>
+
+                <div className="flex gap-3 mb-4">
+                  <button
+                    onClick={connectXverseWallet}
+                    className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors"
+                  >
+                    {btcWallet === 'xverse' ? '✓ Xverse Connected' : 'Connect Xverse'}
+                  </button>
+                  <button
+                    onClick={connectUnisatWallet}
+                    className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors"
+                  >
+                    {btcWallet === 'unisat' ? '✓ Unisat Connected' : 'Connect Unisat'}
+                  </button>
+                </div>
+
+                {btcAddress && (
+                  <div className="bg-gray-900 rounded-lg p-3 border border-purple-500">
+                    <p className="text-xs text-purple-300 mb-1">Connected Address:</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-mono text-white break-all flex-1">{btcAddress}</p>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(btcAddress)}
+                        className="p-2 bg-purple-700 rounded hover:bg-purple-600"
+                      >
+                        <Copy size={14} className="text-white" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Cardano Wallet */}
+              <div className="bg-gray-800 rounded-xl p-6 border-2 border-orange-600">
+                <h3 className="text-xl font-bold text-white mb-4">Step 2: Connect Cardano Wallet</h3>
+                <p className="text-gray-300 mb-4">Connect for ADA distributions</p>
+
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <button
+                    onClick={() => connectCardanoWallet('vespr')}
+                    className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-500 transition-colors"
+                  >
+                    {cardanoWallet === 'vespr' ? '✓ Vespr' : 'Vespr'}
+                  </button>
+                  <button
+                    onClick={() => connectCardanoWallet('eternl')}
+                    className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-500 transition-colors"
+                  >
+                    {cardanoWallet === 'eternl' ? '✓ Eternl' : 'Eternl'}
+                  </button>
+                  <button
+                    onClick={() => connectCardanoWallet('nami')}
+                    className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-500 transition-colors"
+                  >
+                    {cardanoWallet === 'nami' ? '✓ Nami' : 'Nami'}
+                  </button>
+                  <button
+                    onClick={() => connectCardanoWallet('flint')}
+                    className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-500 transition-colors"
+                  >
+                    {cardanoWallet === 'flint' ? '✓ Flint' : 'Flint'}
+                  </button>
+                </div>
+
+                {adaAddress && (
+                  <div className="bg-gray-900 rounded-lg p-3 border border-orange-500">
+                    <p className="text-xs text-orange-300 mb-1">Connected Address ({cardanoWallet}):</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-mono text-white break-all flex-1">{adaAddress}</p>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(adaAddress)}
+                        className="p-2 bg-orange-700 rounded hover:bg-orange-600"
+                      >
+                        <Copy size={14} className="text-white" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Discord */}
+              <div className="bg-gray-800 rounded-xl p-6 border-2 border-green-600">
+                <h3 className="text-xl font-bold text-white mb-4">Step 3: Discord (Optional)</h3>
+                <input
+                  type="text"
+                  value={discordUsername}
+                  onChange={(e) => setDiscordUsername(e.target.value)}
+                  placeholder="username#1234"
+                  className="w-full px-4 py-3 bg-gray-900 border-2 border-green-600 rounded-lg text-white"
+                />
+              </div>
+
+              {/* Submit Button */}
+              {btcAddress && adaAddress && (
+                <button
+                  onClick={submitLinkage}
+                  className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-orange-600 text-white rounded-xl font-bold text-lg hover:from-purple-500 hover:to-orange-500 transition-all"
+                >
+                  Submit Wallet Linkage
+                </button>
+              )}
+
+              {/* Existing Linkages */}
+              {linkages.length > 0 && (
+                <div className="bg-gray-800 rounded-xl p-6 border-2 border-blue-600 mt-6">
+                  <h3 className="text-xl font-bold text-white mb-4">Your Linked Wallets ({linkages.length})</h3>
+                  <div className="space-y-3">
+                    {linkages.map((linkage, index) => (
+                      <div key={index} className="bg-gray-900 rounded-lg p-4 border border-blue-500">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <p className="text-xs text-purple-300 mb-1">Bitcoin ({linkage.btcWallet})</p>
+                            <p className="text-xs font-mono text-white break-all">{linkage.btcAddress}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-orange-300 mb-1">Cardano ({linkage.cardanoWallet})</p>
+                            <p className="text-xs font-mono text-white break-all">{linkage.adaAddress}</p>
+                          </div>
+                        </div>
+                        {linkage.discordUsername && (
+                          <p className="text-xs text-green-300 mt-2">Discord: {linkage.discordUsername}</p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-2">Linked: {new Date(linkage.timestamp).toLocaleString()}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+        )}
+
+        <div className="mt-8 text-center text-orange-300 text-sm">
+          <p>HPEC DAO • 267651.bitmap • Powered by Ordinals</p>
+        </div>
       </div>
-      );
+    </div>
+  );
 }
